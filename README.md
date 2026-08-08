@@ -2,7 +2,7 @@
 
 在 VirtualMacOniPad（虚拟 macOS）guest 中，**开机自动诱出 swap** 的菜单栏小工具。
 
-修复 [GitHub issue #24](https://github.com/qwqVictor/VirtualMacOniPad/issues/24)（VM 运行约 26 分钟后 framebuffer 冻结）的预防方案：每次登录时主动制造一次内存压力，让内核激活 swap，从此本次开机就有了"逃生阀"，显示路径的 WIRED 内存分配不再会被饿死。
+修复 [GitHub issue #24](https://github.com/nfzerox/VirtualMacOniPad/issues/24)（VM 运行约 26 分钟后 framebuffer 冻结）的预防方案：每次登录时主动制造一次内存压力，让内核激活 swap，从此本次开机就有了"逃生阀"，显示路径的 WIRED 内存分配不容易被饿死。
 
 ## 背景
 
@@ -104,5 +104,5 @@ SwapPrime.app/Contents/MacOS/SwapPrime [--timeout SEC] [--hot MB] [--cold MB] [-
 
 ## 参考
 
-- [issue #24](https://github.com/qwqVictor/VirtualMacOniPad/issues/24)
+- [issue #24](https://github.com/nfzerox/VirtualMacOniPad/issues/24)
 - 关键内核机制：`vm_compressor_swapout_conditions_met()`（vm_compressor.c）、`vm_swapfile_create_thread`（vm_compressor_backing_store.c）
