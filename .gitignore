@@ -1,0 +1,9 @@
+# build artifacts
+SwapPrime.app/
+memory_load
+display_load
+swap_priming
+
+# misc
+*.o
+.DS_Store

@@ -1,0 +1,33 @@
+name: build
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+# Guest is arm64 (VirtualMacOniPad), so pin the arm64 Apple Silicon image
+# (macos-15 is the current stable arm64 label; avoid macos-latest, which
+# migrates between macOS versions).
+jobs:
+  build:
+    name: Build SwapPrime.app
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: ./build_swap_prime.sh
+
+      - name: Verify architecture
+        run: file SwapPrime.app/Contents/MacOS/SwapPrime
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SwapPrime-macos-arm64
+          path: SwapPrime.app
+          if-no-files-found: error
