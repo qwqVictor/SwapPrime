@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # tags needed for the Info.plist version (git describe)
 
       - name: Build
         run: ./build_swap_prime.sh
