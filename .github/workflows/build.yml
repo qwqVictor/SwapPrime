@@ -41,6 +41,10 @@ jobs:
     permissions:
       contents: write
     steps:
+      # gh release create needs a git repo (commit history for --generate-notes).
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
