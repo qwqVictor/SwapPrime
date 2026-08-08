@@ -324,6 +324,10 @@ timeout:
 }
 
 /* ---- AppKit ---- */
+static int install_app(void);   /* defined below main's helpers */
+static int uninstall_app(void);
+static BOOL is_installed(void);
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @end
 
@@ -331,6 +335,23 @@ timeout:
 
 - (void)applicationDidFinishLaunching:(NSNotification *)note
 {
+	if (!is_installed()) {
+		[[NSRunningApplication currentApplication]
+		    activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+		NSAlert *alert = [[NSAlert alloc] init];
+		alert.messageText = @"SwapPrime isn't installed";
+		alert.informativeText =
+		    @"SwapPrime is missing from /Applications or ~/Applications and its "
+		    @"LaunchAgent isn't installed. Install it to prime swap at every login?";
+		[alert addButtonWithTitle:@"Install"];
+		[alert addButtonWithTitle:@"Quit"];
+		if ([alert runModal] == NSAlertFirstButtonReturn) {
+			(void)install_app();
+		}
+		[NSApp terminate:nil];
+		return;
+	}
+
 	g_status = [[NSStatusBar systemStatusBar]
 	    statusItemWithLength:NSSquareStatusItemLength];
 	g_status.button.image =
@@ -539,6 +560,22 @@ uninstall_app(void)
 		printf("uninstalled.\n");
 		return 0;
 	}
+}
+
+/* Installed = app present in /Applications or ~/Applications AND its
+ * LaunchAgent plist exists. Startup prompts for a self-install when not. */
+static BOOL
+is_installed(void)
+{
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *home = NSHomeDirectory();
+	BOOL inSystem = [fm fileExistsAtPath:@"/Applications/SwapPrime.app"];
+	BOOL inUser = [fm fileExistsAtPath:
+	    [home stringByAppendingPathComponent:@"Applications/SwapPrime.app"]];
+	BOOL agent = [fm fileExistsAtPath:
+	    [[home stringByAppendingPathComponent:@"Library/LaunchAgents"]
+	        stringByAppendingPathComponent:@"tech.imvictor.swapprime.plist"]];
+	return (inSystem || inUser) && agent;
 }
 
 int

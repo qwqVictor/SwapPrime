@@ -55,18 +55,19 @@ jobs:
         run: |
           cd dist
           # upload-artifact strips the .app wrapper, so the artifact root is
-          # the bundle's Contents/ — rebuild the .app before zipping.
+          # the bundle's Contents/ — rebuild the .app (unversioned) before zipping.
           test -d Contents || { find .; echo "expected Contents/ from artifact"; exit 1; }
-          mkdir -p "SwapPrime-${GITHUB_REF_NAME}.app"
-          mv Contents "SwapPrime-${GITHUB_REF_NAME}.app/Contents"
-          zip -r "SwapPrime-${GITHUB_REF_NAME}-macos-arm64.zip" \
-              "SwapPrime-${GITHUB_REF_NAME}.app"
+          mkdir -p SwapPrime.app
+          mv Contents SwapPrime.app/Contents
+          zip -r "SwapPrime-${GITHUB_REF_NAME}-macos-arm64.zip" SwapPrime.app
 
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cd dist
+          # idempotent: replace a release that already exists for this tag
+          gh release delete "$GITHUB_REF_NAME" --yes 2>/dev/null || true
           gh release create "$GITHUB_REF_NAME" \
               "SwapPrime-${GITHUB_REF_NAME}-macos-arm64.zip" \
               --title "$GITHUB_REF_NAME" --generate-notes
