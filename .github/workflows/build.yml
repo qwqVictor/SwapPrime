@@ -50,7 +50,11 @@ jobs:
       - name: Package release zip
         run: |
           cd dist
-          mv SwapPrime.app "SwapPrime-${GITHUB_REF_NAME}.app"
+          # upload-artifact strips the .app wrapper, so the artifact root is
+          # the bundle's Contents/ — rebuild the .app before zipping.
+          test -d Contents || { find .; echo "expected Contents/ from artifact"; exit 1; }
+          mkdir -p "SwapPrime-${GITHUB_REF_NAME}.app"
+          mv Contents "SwapPrime-${GITHUB_REF_NAME}.app/Contents"
           zip -r "SwapPrime-${GITHUB_REF_NAME}-macos-arm64.zip" \
               "SwapPrime-${GITHUB_REF_NAME}.app"
 
